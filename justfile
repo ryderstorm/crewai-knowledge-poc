@@ -2,8 +2,8 @@
 # Requires: just (https://just.systems/)
 
 # Default recipe to display help
-default:
-    @just --list
+_default:
+    @just --list --unsorted
 
 # Install dependencies using uv
 install:
@@ -26,7 +26,7 @@ setup:
     @echo "✅ Setup complete!"
     @echo ""
     @echo "📋 Next steps:"
-    @echo "1. Copy .env.template to .env and add your OpenAI API key"
+    @echo "1. Edit .env and add your OpenAI API key"
     @echo "2. Start the server: just dev"
     @echo "3. Test the API: just test"
     @echo ""
@@ -45,9 +45,9 @@ check-requirements:
 check-env:
     @echo "🔧 Checking environment setup..."
     @if [ ! -f .env ]; then \
-        echo "⚠️  .env file not found. Copy .env.template to .env and configure it."; \
-    else \
-        echo "✅ .env file found"; \
+        echo "⚠️  .env file not found. Creating one based on .env.template..."; \
+        cp .env.template .env; \
+        echo "✅ .env created. Please edit it and add your OpenAI API key."; \
     fi
     @if [ ! -d knowledge ]; then \
         echo "📁 Creating knowledge directory..."; \
@@ -130,51 +130,3 @@ query QUESTION="What are FastAPI best practices?":
     @curl -s -X POST http://localhost:8000/query \
         -H "Content-Type: application/json" \
         -d '{"query": "{{QUESTION}}"}' | python -m json.tool || echo "❌ API not responding. Is the server running?"
-
-# Show project structure
-tree:
-    @echo "📁 Project structure:"
-    @find . -type f -name "*.py" -o -name "*.md" -o -name "*.toml" -o -name "justfile" -o -name ".env*" | grep -v __pycache__ | sort
-
-# Copy environment template if .env doesn't exist
-init-env:
-    @if [ ! -f .env ]; then \
-        echo "📋 Creating .env from template..."; \
-        cp .env.template .env; \
-        echo "✅ .env created. Please edit it and add your OpenAI API key."; \
-    else \
-        echo "⚠️  .env already exists. Not overwriting."; \
-    fi
-
-# Show help with examples
-help:
-    @echo "🚀 FastAPI + CrewAI Knowledge PoC Commands"
-    @echo ""
-    @echo "Setup & Installation:"
-    @echo "  just setup         # Complete project setup"
-    @echo "  just install       # Install dependencies"
-    @echo "  just install-dev   # Install with dev dependencies"
-    @echo "  just init-env      # Copy .env.template to .env"
-    @echo ""
-    @echo "Development:"
-    @echo "  just dev           # Start development server"
-    @echo "  just start         # Start production server"
-    @echo "  just test          # Run comprehensive tests"
-    @echo "  just test-interactive  # Interactive testing mode"
-    @echo ""
-    @echo "Code Quality:"
-    @echo "  just format        # Format code with ruff"
-    @echo "  just lint          # Lint code"
-    @echo "  just lint-fix      # Lint and fix issues"
-    @echo "  just check         # Run all quality checks"
-    @echo ""
-    @echo "API Testing:"
-    @echo "  just health        # Check API health"
-    @echo "  just files         # List knowledge files"
-    @echo "  just query 'How to deploy FastAPI?'  # Test query"
-    @echo ""
-    @echo "Utilities:"
-    @echo "  just clean         # Clean temporary files"
-    @echo "  just tree          # Show project structure"
-    @echo ""
-    @echo "📖 For more details, see README.md"
